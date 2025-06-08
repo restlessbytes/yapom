@@ -12,8 +12,7 @@ from pathlib import Path
 BG_DARK = "#2e2e2e"
 TOMATO = "\U0001f345"
 NOTIFY_TOOL = "notify-send"
-# TODO HOME_DIR = "~/.yapom"
-HOME_DIR = "dev_home/"
+HOME_DIR = "~/.yapom"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 DEFAULT_RUNTIME = "25m"
 
@@ -118,7 +117,9 @@ def determine_runtime():
 
 class TclNotFoundError(RuntimeError):
     def __init__(self):
-        super().__init__("Could not find 'tclsh' - Tcl might not be installed properly.")
+        super().__init__(
+            "Could not find 'tclsh' - Tcl might not be installed properly."
+        )
 
 
 def notify_user(message: str):
@@ -182,7 +183,9 @@ def notify_user(message: str):
 
 def notify_send(message: str):
     if not is_notify_send_installed():
-        raise RuntimeError(f"{NOTIFY_TOOL} not found. Please make sure libnotify-bin is installed.")
+        raise RuntimeError(
+            f"{NOTIFY_TOOL} not found. Please make sure libnotify-bin is installed."
+        )
     subprocess.run([NOTIFY_TOOL, pomtext(message)], check=True)
 
 
@@ -191,7 +194,11 @@ def notify_session_finished():
     try:
         notify_user(message)
     except TclNotFoundError:
-        print(pomtext("Please ensure Tcl was installed properly: https://tkdocs.com/tutorial/install.html"))
+        print(
+            pomtext(
+                "Please ensure (Python) Tcl was installed properly: https://tkdocs.com/tutorial/install.html"
+            )
+        )
     except Exception as ex:
         print(pomtext(f"[WARNING] Tcl notification failed: {ex}"))
         print(pomtext(f"[WARNING] Now trying 'notify-send' ..."))
