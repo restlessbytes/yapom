@@ -10,7 +10,6 @@ from pathlib import Path
 
 
 BG_DARK = "#2e2e2e"
-# Tomato Emoji: https://emojipedia.org/tomato
 TOMATO = "\U0001f345"
 NOTIFY_TOOL = "notify-send"
 # TODO HOME_DIR = "~/.yapom"
@@ -52,6 +51,14 @@ def no_session_in_progress_message(text: str) -> str:
 
 def is_installed(name: str) -> bool:
     return any(shutil.which(name) or "")
+
+
+def is_notify_send_installed() -> bool:
+    return is_installed(NOTIFY_TOOL)
+
+
+def is_tcl_installed() -> bool:
+    return is_installed("tclsh")
 
 
 def format_runtime(seconds: int) -> str:
@@ -109,70 +116,86 @@ def determine_runtime():
         return runtime_from_string(DEFAULT_RUNTIME)
 
 
+class TclNotFoundError(RuntimeError):
+    def __init__(self):
+        super().__init__("Could not find 'tclsh' - Tcl might not be installed properly.")
+
+
 def notify_user(message: str):
+    if not is_tcl_installed():
+        raise TclNotFoundError()
+
+    root = None
     try:
         # TODO Fails when used from within a virtual environment
         root = tk.Tk()
-    except tk.TclError as tex:
-        notify_send(message)
-        sys.exit(pomtext(f"[WARNING][Tkinter] {tex}"))
+        # Hide the main window
+        root.withdraw()
 
-    # Hide the main window
-    root.withdraw()
+        # Create a custom dialog window
+        dialog = tk.Toplevel(root)
+        dialog.title("Pomodoro Notification")
+        dialog.resizable(False, False)
+        dialog.geometry("300x150")
+        dialog.configure(bg=BG_DARK)  # Dark background
 
-    # Create a custom dialog window
-    dialog = tk.Toplevel(root)
-    dialog.title("Pomodoro Notification")
-    dialog.resizable(False, False)
-    dialog.geometry("300x150")
-    dialog.configure(bg=BG_DARK)  # Dark background
-
-    try:
-        # Emojione - tomato Emoji - U+1F345
-        # Source: https://commons.wikimedia.org/wiki/File:Emojione_1F345.svg
-        # TODO Ensure that the image is still found under this 'relative' path!
-        icon = tk.PhotoImage(
-            file="resources/icons/Emojione_1F345_32px.svg.png"
-        ).subsample(2, 2)
-        dialog.iconphoto(False, icon)
-        message_label = tk.Label(
-            dialog,
-            text=message,
-            fg="white",
-            bg=BG_DARK,
-            padx=5,
-            wraplength=280,
-            image=icon,
-            compound="left",
-        )
-    except Exception as e:
-        print(pomtext(f"Could not load icon: {e}"))
-        message_label = tk.Label(
-            dialog, text=message, fg="white", bg=BG_DARK, wraplength=280
-        )
-
-    # Message label
-    message_label.pack(pady=20)
-
-    # OK button
-    ok_button = tk.Button(
-        dialog, text="OK", command=dialog.destroy, bg="#444444", fg="white"
-    )
-    ok_button.pack()
-
-    dialog.mainloop()
-    root.destroy()
-
-
-def notify_send(message: str, do_exit: bool = True):
-    if is_installed(NOTIFY_TOOL):
         try:
-            subprocess.run([NOTIFY_TOOL, pomtext(message)], check=True)
-        except subprocess.CalledProcessError as e:
-            sys.exit(pomtext(f"Notification failed: {e}"))
-    else:
-        sys.exit(
-            pomtext(
-                f"{NOTIFY_TOOL} not found. Please make sure libnotify-bin is installed."
+            # Emojione - tomato Emoji - U+1F345
+            # Source: https://commons.wikimedia.org/wiki/File:Emojione_1F345.svg
+            image_path = (
+                Path(__file__).parent / "resources/icons/Emojione_1F345_32px.svg.png"
             )
+            icon = tk.PhotoImage(file=image_path).subsample(2, 2)
+            dialog.iconphoto(False, icon)
+            message_label = tk.Label(
+                dialog,
+                text=message,
+                fg="white",
+                bg=BG_DARK,
+                padx=5,
+                wraplength=280,
+                image=icon,
+                compound="left",
+            )
+        except Exception as e:
+            print(pomtext(f"Failed to load Pomodoro icon: {e}"))
+            message_label = tk.Label(
+                dialog, text=message, fg="white", bg=BG_DARK, wraplength=280
+            )
+
+        # Message label
+        message_label.pack(pady=20)
+
+        # OK button
+        ok_button = tk.Button(
+            dialog, text="OK", command=dialog.destroy, bg="#444444", fg="white"
         )
+        ok_button.pack()
+
+        dialog.mainloop()
+        root.destroy()
+    finally:
+        if root:
+            # Ensure that Tk 'root' is destroyed "no matter what"
+            root.destroy()
+
+
+def notify_send(message: str):
+    if not is_notify_send_installed():
+        raise RuntimeError(f"{NOTIFY_TOOL} not found. Please make sure libnotify-bin is installed.")
+    subprocess.run([NOTIFY_TOOL, pomtext(message)], check=True)
+
+
+def notify_session_finished():
+    message = "Pomodoro session finished!"
+    try:
+        notify_user(message)
+    except TclNotFoundError:
+        print(pomtext("Please ensure Tcl was installed properly: https://tkdocs.com/tutorial/install.html"))
+    except Exception as ex:
+        print(pomtext(f"[WARNING] Tcl notification failed: {ex}"))
+        print(pomtext(f"[WARNING] Now trying 'notify-send' ..."))
+        try:
+            notify_send(message)
+        except Exception as ex:
+            sys.exit(pomtext(str(ex)))

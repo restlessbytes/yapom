@@ -1,1 +1,1 @@
-# Small Pomodoro App For GNOME
+# `yapom` - a "**Y** **A**nother **P**omodoro app"

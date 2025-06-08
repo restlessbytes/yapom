@@ -20,5 +20,5 @@ if __name__ == "__main__":
         pomodoro.finish(end_time=datetime.now())
     except ValueError:
         sys.exit(f"No such PID in pomodoro sessions file: {pid}")
-    # utils.notify_send("Pomodoro session finished!")
-    utils.notify_user("Pomodoro session finished!")
+
+    utils.notify_session_finished()
