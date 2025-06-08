@@ -119,6 +119,7 @@ def finish(end_time: datetime, with_status: Status = Status.FINISHED) -> Status:
     # Update session file
     end_str = end_time.strftime(utils.DATETIME_FORMAT)
     updated = session.update({"stop": "", "end": end_str, "status": with_status.value})
+    history.create_db_table()
     history.archive_pomodoro_session(updated)
     return with_status
 
