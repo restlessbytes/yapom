@@ -1,0 +1,10 @@
+[project]
+name = "yapom"
+version = "0.1.0"
+description = "Yet Another Pomodoro app"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pyright>=1.1.401",
+    "pytest>=8.4.0",
+]
