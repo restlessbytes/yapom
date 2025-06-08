@@ -21,7 +21,6 @@ Commands:
   reset            Reset the current session (same as 'restart')
   restart          Restart the current session (same as 'reset')
   repeat           Repeat the last session (i.e. new session, same runtime)
-  report           Generate a report about your Pomodoro history
   tomato           Print tomato emoji
                                                           
 Time format: [HOURS]h[MINUTES]m[SECONDS]s
@@ -59,7 +58,7 @@ def main():
             print(pomodoro.repeat())
         case "report":
             # TODO
-            print("This feature hasn't been implemented yet!")
+            print(utils.pomtext("This feature hasn't been implemented yet!"))
         case "tomato" | "pomodoro":
             print(utils.TOMATO)
         case _:
