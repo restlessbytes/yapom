@@ -1,8 +1,15 @@
-# `yapom` - Yet Another POModoro app
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/restlessbytes/yapom">
+    <img src="yapom/resources/icons/Emojione_1F345_240px.svg.png" alt="yapom" width="80" height="80">
+  </a>
+  <h3 align="center">Yet Another POModoro app</h3>
+</div>
 
-## About `yapom`
+## About this project
 
-🍅 `yapom` is a simple command-line tool for managing [Pomodoro](https://en.wikipedia.org/wiki/Pomodoro_Technique) sessions, written in Python.
+`yapom` is a simple command-line tool for managing [Pomodoro](https://en.wikipedia.org/wiki/Pomodoro_Technique) sessions, written in Python.
 
 I wrote `yapom` because I wanted a Pomodoro timer that ...
 
