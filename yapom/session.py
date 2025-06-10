@@ -87,7 +87,8 @@ def start_timer(runtime: int) -> tuple[int, datetime]:
 
     Returns PID and start time (as `datetime`) for the timer process.
     """
-    process = subprocess.Popen(f"python3 pomtimer.py {runtime}".split())
+    pomtimer_file = Path(__file__).parent / Path("../pomtimer.py")
+    process = subprocess.Popen(f"python3 {pomtimer_file} {runtime}".split())
     return process.pid, datetime.now()
 
 

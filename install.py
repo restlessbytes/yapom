@@ -1,4 +1,4 @@
-# !/usr/bin/env python3
+#!/usr/bin/env python3
 import sys
 
 import yapom.utils as utils
@@ -37,7 +37,7 @@ def check_tcl_installation():
 
 
 def create_symlink_in_user_bin(user_bin: Path):
-    print(f"Creating symlink from (yapom) main.py to {target_dir}")
+    print(pomtext(f"Creating symlink from (yapom) main.py to {target_dir}"))
     symlink_path = Path(target_dir) / "yapom"
     main_py_path = Path("main.py").absolute()
 
@@ -47,7 +47,7 @@ def create_symlink_in_user_bin(user_bin: Path):
 
     # Create the new symlink
     symlink_path.symlink_to(main_py_path)
-    print(f"Symlink created: {symlink_path} -> {main_py_path}")
+    print(pomtext(f"Symlink created: {symlink_path} -> {main_py_path}"))
 
 
 print(pomtext("Installation process started ..."))
@@ -55,7 +55,7 @@ print(pomtext("Installation process started ..."))
 check_notify_send_installation()
 check_tcl_installation()
 
-print(f"Creating yapom HOME directory: {utils.HOME_DIR}")
+print(pomtext(f"Creating yapom HOME directory: {utils.HOME_DIR}"))
 utils.home_dir()
 
 if not (target_dir := determine_user_bin_folder()):
