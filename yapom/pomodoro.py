@@ -16,27 +16,30 @@ def status() -> str:
     This function returns a 'pomtext' string.
     """
     if latest := session.read():
-        # start_time, end_time, runtime, latest_status = latest
         runtime = int(latest["runtime"])
         runtime_fmt = utils.format_runtime(runtime) or "-"
         latest_status = Status(latest["status"]).name
         start_time = latest["start"]
         day_start, start_time = start_time.split()
+        elapsed, remaining = session.get_runtimes()
+        elapsed_str = utils.format_runtime(elapsed)
+        remaining_str = utils.format_runtime(remaining)
         if end_time := latest.get("end"):
             day_end, end_time = end_time.split()
             if day_start == day_end:
-                message = f"{latest_status} ({runtime_fmt}) (from {start_time} to {end_time}) [{day_start}]"
-            else:
-                message = (
-                    f"[{day_start}:{start_time}] [{day_end}:{end_time}] {latest_status}"
+                return pomtext(
+                    f"{latest_status} ({runtime_fmt}) (start {start_time}) (end {end_time}) [{day_start}]"
                 )
-        else:
-            message = (
-                f"{latest_status} ({runtime_fmt}) (from {start_time}) [{day_start}]"
+            return pomtext(
+                f"{latest_status} (start {start_time} [{day_start}]) (end {end_time} [{day_end}])"
             )
-    else:
-        message = "No Pomodoro session found."
-    return pomtext(message)
+        runtime_info = (
+            f"(total {runtime_fmt}) (elapsed {elapsed_str} | remaining {remaining_str})"
+        )
+        return pomtext(
+            f"{latest_status} {runtime_info} (start: {start_time}) [{day_start}]"
+        )
+    return pomtext("No Pomodoro session found.")
 
 
 def start(runtime: int) -> str:
@@ -61,7 +64,7 @@ def stop() -> str:
 
     The session can be resumed later.
     """
-    if session.has_finished():
+    if session.has_ended():
         return utils.no_session_in_progress_message("nothing to stop.")
     if session.is_running():
         session.kill_current()
@@ -85,7 +88,7 @@ def resume():
     """
     Resume a stopped Pomodoro session.
     """
-    if session.has_finished():
+    if session.has_ended():
         return utils.no_session_in_progress_message("nothing to resume.")
     if session.is_running():
         # 'Resuming' an already running session shouldn't do anything.
@@ -128,7 +131,7 @@ def cancel() -> str:
     """
     Cancel the current Pomodoro session if it hasn't finished.
     """
-    if session.has_finished():
+    if session.has_ended():
         return utils.no_session_in_progress_message("nothing to cancel.")
     try:
         session.kill_current()
@@ -142,7 +145,7 @@ def reset() -> str:
     """
     Reset the start date of the current session to 'now' and then restart it.
     """
-    if session.has_finished():
+    if session.has_ended():
         return utils.no_session_in_progress_message("nothing to reset / restart")
     session.kill_current()
     updated = session.update({"status": Status.CANCELLED.value})

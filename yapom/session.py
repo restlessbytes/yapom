@@ -57,16 +57,19 @@ def is_in_progress() -> bool:
     return get_current_status() in {Status.STOPPED, Status.RUNNING}
 
 
-def has_finished() -> bool:
+def has_ended() -> bool:
     return get_current_status() in {Status.FINISHED, Status.CANCELLED}
 
 
-def get_runtimes() -> tuple[int, int] | None:
-    if has_finished():
-        return None
+def get_runtimes() -> tuple[int, int]:
+    """
+    Returns tuple (`time elapsed`, `time remaining`).
+    """
     data = read()
-    start_time_str = data["start"]
     original_runtime = data["runtime"]
+    if has_ended():
+        return int(original_runtime), 0
+    start_time_str = data["start"]
     if time_ref := data.get("stop"):
         time_ref = datetime.strptime(time_ref, DATETIME_FORMAT)
     else:
