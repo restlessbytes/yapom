@@ -1,6 +1,6 @@
 import pytest
 
-import utils
+import yapom.utils as utils
 
 
 @pytest.mark.parametrize(

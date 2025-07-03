@@ -37,8 +37,8 @@ def check_tcl_installation():
 
 
 def create_symlink_in_user_bin(user_bin: Path):
-    print(pomtext(f"Creating symlink from (yapom) main.py to {target_dir}"))
-    symlink_path = Path(target_dir) / "yapom"
+    print(pomtext(f"Creating symlink from (yapom) main.py to {user_bin}"))
+    symlink_path = Path(user_bin) / "yapom"
     main_py_path = Path("main.py").absolute()
 
     # Remove existing symlink if it exists

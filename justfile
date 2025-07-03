@@ -36,5 +36,5 @@ fmt:
 lint:
    ruff check --fix *.py tests/*.py
 
-check file:
-   uv run pyright {{ file }}
+check *files:
+   uvx pyrefly {{ files }}
